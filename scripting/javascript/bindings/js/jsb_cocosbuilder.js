@@ -71,7 +71,21 @@ cc.BuilderReader.load = function(file, owner, parentSize)
         if (!documentControllerName) continue;
 
         // Create a document controller
-        var controller = new _ccbGlobalContext[documentControllerName]();
+        var documentControllerConstructor = null;
+
+        // Check if controller is namespaced
+        if (documentControllerName.indexOf(".") !== -1) {
+            documentControllerConstructor = _ccbGlobalContext;
+
+            var nameSpaceParts = documentControllerName.split(".");
+            for (var i = 0, len = nameSpaceParts.length; i < len; ++i) {
+                documentControllerConstructor = documentControllerConstructor[nameSpaceParts[i]];
+            }
+        } else {
+            documentControllerConstructor = _ccbGlobalContext[documentControllerName];
+        }
+
+        var controller = new documentControllerConstructor();
         controller.controllerName = documentControllerName;
 
         innerNode.controller = controller;
@@ -100,6 +114,7 @@ cc.BuilderReader.load = function(file, owner, parentSize)
             var outletNode = documentOutletNodes[j];
 
             controller[outletName] = outletNode;
+
         }
 
         if (typeof(controller.onDidLoadFromCCB) == "function")
@@ -143,6 +158,7 @@ cc.BuilderReader.loadAsScene = function(file, owner, parentSize)
     var node = cc.BuilderReader.load(file, owner, parentSize);
     var scene = cc.Scene.create();
     scene.addChild( node );
+    scene.controller = node.controller;
 
     return scene;
 };
