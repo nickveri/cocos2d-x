@@ -158,6 +158,8 @@ cc.BuilderReader.loadAsScene = function(file, owner, parentSize)
     var node = cc.BuilderReader.load(file, owner, parentSize);
     var scene = cc.Scene.create();
     scene.addChild( node );
+
+    // Pass the controller to the scene for convenience. 
     scene.controller = node.controller;
 
     return scene;
